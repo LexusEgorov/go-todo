@@ -5,22 +5,24 @@ import (
 	"log/slog"
 
 	"github.com/LexusEgorov/todo/internal/config"
+	"github.com/LexusEgorov/todo/internal/server"
 )
 
 type App struct {
-	//TODO: add server
+	server *server.Server
 	logger *slog.Logger
 }
 
-func New(logger *slog.Logger, config *config.Config) (*App, error) {
+func New(logger *slog.Logger, config *config.Config) *App {
 	//TODO: init server
 	return &App{
 		logger: logger,
-	}, nil
+	}
 }
 
 func (a App) Run() {
-	//TODO: start server
+	a.logger.Info("Starting app")
+	go a.server.Run()
 }
 
 func (a App) Stop(ctx context.Context) {
@@ -28,7 +30,7 @@ func (a App) Stop(ctx context.Context) {
 
 	doneCh := make(chan error)
 	go func() {
-		//TODO: stop server
+		doneCh <- a.server.Stop(ctx)
 	}()
 
 	select {
