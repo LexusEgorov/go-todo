@@ -55,22 +55,22 @@ type Config struct {
 func New() (cfg *Config, err error) {
 	configPath, err := fetchConfigPath()
 	if err != nil && !errors.Is(err, ErrConfigPathNotProvided) {
-		return nil, fmt.Errorf("read config error: %v", err)
+		return nil, fmt.Errorf("%s: %w", opNew, err)
 	}
 
 	cfg, err = readFileConfig(configPath)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %v", opNew, err)
+		return nil, fmt.Errorf("%s: %w", opNew, err)
 	}
 
 	cfg, err = readEnvConfig(cfg)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %v", opNew, err)
+		return nil, fmt.Errorf("%s: %w", opNew, err)
 	}
 
 	err = checkConfig(cfg)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %v", opNew, err)
+		return nil, fmt.Errorf("%s: %w", opNew, err)
 	}
 
 	return cfg, nil
@@ -79,7 +79,7 @@ func New() (cfg *Config, err error) {
 // Валидирует конфиг
 func checkConfig(cfg *Config) error {
 	if err := checkServerConfig(&cfg.Server); err != nil {
-		return fmt.Errorf("%s: %v", opCheckConfig, err)
+		return fmt.Errorf("%s: %w", opCheckConfig, err)
 	}
 
 	return checkDBConfig(&cfg.DB)
@@ -119,7 +119,7 @@ func checkServerConfig(cfg *ServerConfig) error {
 func readEnvConfig(cfg *Config) (*Config, error) {
 	port, err := strconv.Atoi(os.Getenv("SERVER_PORT"))
 	if err != nil {
-		return nil, fmt.Errorf("%s: %v", opReadEnv, err)
+		return nil, fmt.Errorf("%s: %w", opReadEnv, err)
 	}
 
 	if port != 0 {
@@ -153,7 +153,7 @@ func readEnvConfig(cfg *Config) (*Config, error) {
 
 	source, err := strconv.ParseBool(os.Getenv("LOGGER_SOURCE"))
 	if err != nil {
-		return nil, fmt.Errorf("%s: %v", opReadEnv, err)
+		return nil, fmt.Errorf("%s: %w", opReadEnv, err)
 	}
 
 	cfg.Logger.AddSource = source
@@ -165,11 +165,11 @@ func readEnvConfig(cfg *Config) (*Config, error) {
 func readFileConfig(configPath string) (*Config, error) {
 	var cfg Config
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		return &cfg, fmt.Errorf("%s: %v", opReadFile, err)
+		return &cfg, fmt.Errorf("%s: %w", opReadFile, err)
 	}
 
 	if err := cleanenv.ReadConfig(configPath, &cfg); err != nil {
-		return &cfg, fmt.Errorf("%s: %v", opReadFile, err)
+		return &cfg, fmt.Errorf("%s: %w", opReadFile, err)
 	}
 
 	return &cfg, nil
@@ -185,7 +185,7 @@ func fetchConfigPath() (string, error) {
 	if path == "" {
 		err := godotenv.Load()
 		if err != nil {
-			return "", fmt.Errorf("%s %v", opFetchConfigPath, err)
+			return "", fmt.Errorf("%s %w", opFetchConfigPath, err)
 		}
 
 		path = os.Getenv("CONFIG_PATH")

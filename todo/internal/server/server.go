@@ -59,7 +59,7 @@ func (s Server) Stop(ctx context.Context) error {
 	s.logger.Info("stopping server...")
 	err := s.server.Shutdown(ctx)
 	if err != nil {
-		return fmt.Errorf("Server.Stop: %v", err)
+		return fmt.Errorf("Server.Stop: %w", err)
 	}
 
 	return nil

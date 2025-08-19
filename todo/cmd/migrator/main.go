@@ -25,10 +25,12 @@ func main() {
 	defer db.Close()
 
 	if err := goose.SetDialect("postgres"); err != nil {
+		db.Close()
 		log.Fatalf("migrator: goose error: %v", err)
 	}
 
 	if err := goose.Up(db, cfg.MigrationsPath); err != nil {
+		db.Close()
 		log.Fatalf("migrator: goose error: %v", err)
 	}
 }
