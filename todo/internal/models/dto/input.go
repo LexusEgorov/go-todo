@@ -3,7 +3,7 @@ package dto
 import "time"
 
 type Register struct {
-	TgID     int    `json:"tgId"`
+	TgID     int    `json:"tg_id"`
 	Name     string `json:"name"`
 	Login    string `json:"login"`
 	Password string `json:"password"`

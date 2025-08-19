@@ -1,10 +1,11 @@
 package config
 
 import (
+	"errors"
 	"flag"
-
-	"github.com/LexusEgorov/todo/internal/models"
 )
+
+var ErrMigrationsNotProvided = errors.New("migrations path didn't provide")
 
 type MigratorConfig struct {
 	DBConfig
@@ -26,19 +27,19 @@ func NewMigratorConfig() (*MigratorConfig, error) {
 	flag.Parse()
 
 	if migrationsPath == "" {
-		return nil, models.ErrMigrationsNotProvided
+		return nil, ErrMigrationsNotProvided
 	}
 
 	if user == "" {
-		return nil, models.ErrBadUserName
+		return nil, ErrBadUserName
 	}
 
 	if password == "" {
-		return nil, models.ErrBadPassword
+		return nil, ErrBadPassword
 	}
 
 	if name == "" {
-		return nil, models.ErrBadDBName
+		return nil, ErrBadDBName
 	}
 
 	return &MigratorConfig{

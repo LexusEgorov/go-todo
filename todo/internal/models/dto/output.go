@@ -26,13 +26,13 @@ type User struct {
 
 type Task struct {
 	ID        int        `json:"id"`
-	UID       int        `json:"uId"`
+	UID       int        `json:"u_id"`
 	Title     string     `json:"title"`
 	Text      string     `json:"text"`
 	Status    TaskStatus `json:"status"`
 	Deadline  time.Time  `json:"deadline"`
-	CreatedAt time.Time  `json:"createdAt"`
-	UpdatedAt time.Time  `json:"updatedAt"`
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
 }
 
 type ShortTask struct {

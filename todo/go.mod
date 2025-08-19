@@ -28,7 +28,7 @@ require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/jackc/pgx v3.6.2+incompatible
 	github.com/jackc/pgx/v5 v5.7.5
-	github.com/joho/godotenv v1.5.1 // indirect
+	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.13.4
 	github.com/pressly/goose/v3 v3.24.3
 	gopkg.in/yaml.v3 v3.0.1 // indirect

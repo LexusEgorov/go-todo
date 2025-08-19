@@ -7,9 +7,27 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/LexusEgorov/todo/internal/models"
 	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/joho/godotenv"
+)
+
+const (
+	prefix            = "Config."
+	opNew             = prefix + "New"
+	opCheckConfig     = prefix + "CheckConfig"
+	opReadEnv         = prefix + "ReadEnv"
+	opReadFile        = prefix + "ReadFile"
+	opFetchConfigPath = prefix + "FetchConfigPath"
+)
+
+var (
+	ErrConfigPathNotProvided = errors.New("config path didn't provide")
+	ErrBadConfigPort         = errors.New("port must be upper than 0")
+	ErrBadAuthAddr           = errors.New("auth service's address is required")
+	ErrBadResponseTime       = errors.New("response time must be upper than 0ms")
+	ErrBadUserName           = errors.New("username is required")
+	ErrBadPassword           = errors.New("password is required")
+	ErrBadDBName             = errors.New("db name is required")
 )
 
 type ServerConfig struct {
@@ -36,23 +54,23 @@ type Config struct {
 
 func New() (cfg *Config, err error) {
 	configPath, err := fetchConfigPath()
-	if err != nil && !errors.Is(err, models.ErrConfigPathNotProvided) {
+	if err != nil && !errors.Is(err, ErrConfigPathNotProvided) {
 		return nil, fmt.Errorf("read config error: %v", err)
 	}
 
 	cfg, err = readFileConfig(configPath)
 	if err != nil {
-		return nil, fmt.Errorf("Config.New: %v", err)
+		return nil, fmt.Errorf("%s: %v", opNew, err)
 	}
 
 	cfg, err = readEnvConfig(cfg)
 	if err != nil {
-		return nil, fmt.Errorf("Config.New: %v", err)
+		return nil, fmt.Errorf("%s: %v", opNew, err)
 	}
 
 	err = checkConfig(cfg)
 	if err != nil {
-		return nil, fmt.Errorf("Config.New: %v", err)
+		return nil, fmt.Errorf("%s: %v", opNew, err)
 	}
 
 	return cfg, nil
@@ -61,7 +79,7 @@ func New() (cfg *Config, err error) {
 // Валидирует конфиг
 func checkConfig(cfg *Config) error {
 	if err := checkServerConfig(&cfg.Server); err != nil {
-		return fmt.Errorf("Config.Check: %v", err)
+		return fmt.Errorf("%s: %v", opCheckConfig, err)
 	}
 
 	return checkDBConfig(&cfg.DB)
@@ -70,15 +88,15 @@ func checkConfig(cfg *Config) error {
 // Валидирует конфиг базы данных
 func checkDBConfig(cfg *DBConfig) error {
 	if cfg.Name == "" {
-		return models.ErrBadDBName
+		return ErrBadDBName
 	}
 
 	if cfg.Password == "" {
-		return models.ErrBadPassword
+		return ErrBadPassword
 	}
 
 	if cfg.User == "" {
-		return models.ErrBadUserName
+		return ErrBadUserName
 	}
 
 	return nil
@@ -87,11 +105,11 @@ func checkDBConfig(cfg *DBConfig) error {
 // Валидирует серверный конфиг
 func checkServerConfig(cfg *ServerConfig) error {
 	if cfg.Port <= 0 {
-		return models.ErrBadConfigPort
+		return ErrBadConfigPort
 	}
 
 	if cfg.AuthAddr == "" {
-		return models.ErrBadAuthAddr
+		return ErrBadAuthAddr
 	}
 
 	return nil
@@ -101,7 +119,7 @@ func checkServerConfig(cfg *ServerConfig) error {
 func readEnvConfig(cfg *Config) (*Config, error) {
 	port, err := strconv.Atoi(os.Getenv("SERVER_PORT"))
 	if err != nil {
-		return nil, fmt.Errorf("Config.ReadEnv: %v", err)
+		return nil, fmt.Errorf("%s: %v", opReadEnv, err)
 	}
 
 	if port != 0 {
@@ -135,7 +153,7 @@ func readEnvConfig(cfg *Config) (*Config, error) {
 
 	source, err := strconv.ParseBool(os.Getenv("LOGGER_SOURCE"))
 	if err != nil {
-		return nil, fmt.Errorf("Config.ReadEnv: %v", err)
+		return nil, fmt.Errorf("%s: %v", opReadEnv, err)
 	}
 
 	cfg.Logger.AddSource = source
@@ -147,11 +165,11 @@ func readEnvConfig(cfg *Config) (*Config, error) {
 func readFileConfig(configPath string) (*Config, error) {
 	var cfg Config
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		return &cfg, fmt.Errorf("Config.ReadFile: %v", err)
+		return &cfg, fmt.Errorf("%s: %v", opReadFile, err)
 	}
 
 	if err := cleanenv.ReadConfig(configPath, &cfg); err != nil {
-		return &cfg, fmt.Errorf("Config.ReadFile: %v", err)
+		return &cfg, fmt.Errorf("%s: %v", opReadFile, err)
 	}
 
 	return &cfg, nil
@@ -167,13 +185,13 @@ func fetchConfigPath() (string, error) {
 	if path == "" {
 		err := godotenv.Load()
 		if err != nil {
-			return "", fmt.Errorf("Config.FetchPath: %v", err)
+			return "", fmt.Errorf("%s %v", opFetchConfigPath, err)
 		}
 
 		path = os.Getenv("CONFIG_PATH")
 
 		if path == "" {
-			return "", models.ErrConfigPathNotProvided
+			return "", ErrConfigPathNotProvided
 		}
 	}
 

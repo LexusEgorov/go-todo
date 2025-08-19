@@ -19,7 +19,7 @@ func main() {
 	}
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
-		AddSource: config.Logger.AddSource,
+		AddSource: config.Logger.AddSource, //TODO: Remove
 	}))
 
 	app := app.New(logger, config)
@@ -31,8 +31,7 @@ func main() {
 
 	<-stopChan
 	logger.Info("Recieved interrupt signal")
-	timeout := 5 * time.Second
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	app.Stop(ctx)
