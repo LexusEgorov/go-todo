@@ -40,3 +40,7 @@ type ShortTask struct {
 	Title  string     `json:"title"`
 	Status TaskStatus `json:"status"`
 }
+
+type BadResponse struct {
+	Message string `json:"message"`
+}
