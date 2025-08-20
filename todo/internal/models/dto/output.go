@@ -19,9 +19,8 @@ type Tokens struct {
 }
 
 type User struct {
-	ID    int    `json:"id"`
-	Name  string `json:"name"`
-	Login string `json:"login"`
+	ID   int    `json:"id"`
+	Name string `json:"name"`
 }
 
 type Task struct {

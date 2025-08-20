@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	prefix    = "User."
+	prefix    = "Handlers.Task."
 	opGetBody = prefix + "getBody"
 	opGet     = prefix + "Get"
 	opGetAll  = prefix + "GetAll"

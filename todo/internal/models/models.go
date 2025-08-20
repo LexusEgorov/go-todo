@@ -22,17 +22,14 @@ type User struct {
 	ID        int
 	TgID      int
 	Name      string
-	Login     string
-	Password  string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 
 func (u User) ToDTO() dto.User {
 	return dto.User{
-		ID:    u.ID,
-		Name:  u.Name,
-		Login: u.Login,
+		ID:   u.ID,
+		Name: u.Name,
 	}
 }
 

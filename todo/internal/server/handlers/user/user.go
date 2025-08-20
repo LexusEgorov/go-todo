@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	prefix     = "User."
+	prefix     = "Handlers.User."
 	opGetBody  = prefix + "getBody"
 	opRegister = prefix + "Register"
 	opAuth     = prefix + "Auth"
