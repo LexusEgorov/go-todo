@@ -25,9 +25,9 @@ const (
 
 type TaskService interface {
 	Get(taskID int) (dto.Task, error)
-	GetAll(userID int) ([]dto.Task, error)
-	Create(task dto.TaskUpdate) (dto.Task, error)
-	Update(task dto.TaskUpdate) (dto.Task, error)
+	GetAll(userID int) ([]dto.ShortTask, error)
+	Create(task dto.TaskUpdate, uId int) (dto.Task, error)
+	Update(task dto.TaskUpdate) (dto.TaskUpdate, error)
 	Delete(taskID int) error
 }
 
@@ -89,7 +89,8 @@ func (h Handler) Create(c echo.Context) error {
 		return h.sendBadResponse(c, http.StatusBadRequest, models.ErrReadJSON)
 	}
 
-	created, err := h.service.Create(task)
+	uId := 1 //TODO: get id from JWT
+	created, err := h.service.Create(task, uId)
 	if err != nil {
 		h.logger.Error(fmt.Errorf("%s: %w", opCreate, err).Error())
 		return h.sendBadResponse(c, http.StatusBadRequest, err.Error())

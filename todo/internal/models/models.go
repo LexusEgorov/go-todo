@@ -57,6 +57,24 @@ func (t Task) ToDTO() dto.Task {
 	}
 }
 
+type TaskUpdate struct {
+	ID       int
+	Title    string
+	Text     string
+	Status   dto.TaskStatus
+	Deadline time.Time
+}
+
+func (t TaskUpdate) ToDTO() dto.TaskUpdate {
+	return dto.TaskUpdate{
+		ID:       t.ID,
+		Title:    t.Title,
+		Text:     t.Text,
+		Status:   t.Status,
+		Deadline: t.Deadline,
+	}
+}
+
 type ShortTask struct {
 	ID     int
 	Title  string
