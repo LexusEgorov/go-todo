@@ -1,13 +1,19 @@
 package handlers
 
 import (
+	"fmt"
 	"log/slog"
 
 	"github.com/labstack/echo/v4"
 
+	"github.com/LexusEgorov/todo/internal/config"
 	"github.com/LexusEgorov/todo/internal/server/handlers/task"
 	"github.com/LexusEgorov/todo/internal/server/handlers/user"
 	"github.com/LexusEgorov/todo/internal/services"
+)
+
+const (
+	opNew = "Handlers.New"
 )
 
 type UserHandler interface {
@@ -31,11 +37,14 @@ type Handlers struct {
 	Task TaskHandler
 }
 
-func New(logger *slog.Logger) *Handlers {
-	services := services.New()
+func New(logger *slog.Logger, cfg config.DBConfig) (*Handlers, error) {
+	services, err := services.New(cfg)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", opNew, err)
+	}
 
 	return &Handlers{
 		User: user.New(logger, services.User),
 		Task: task.New(logger, services.Task),
-	}
+	}, nil
 }

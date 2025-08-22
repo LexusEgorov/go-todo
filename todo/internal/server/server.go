@@ -13,14 +13,22 @@ import (
 	"github.com/LexusEgorov/todo/internal/server/handlers"
 )
 
+const (
+	opNew = "Server.New"
+)
+
 type Server struct {
 	server *echo.Echo
 	logger *slog.Logger
 	config config.ServerConfig
 }
 
-func New(logger *slog.Logger, config config.ServerConfig) *Server {
-	serverHandlers := handlers.New(logger)
+func New(logger *slog.Logger, config config.Config) (*Server, error) {
+	serverHandlers, err := handlers.New(logger, config.DB)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", opNew, err)
+	}
+
 	echoServer := echo.New()
 
 	taskGroup := echoServer.Group("tasks")
@@ -44,8 +52,8 @@ func New(logger *slog.Logger, config config.ServerConfig) *Server {
 	return &Server{
 		server: echoServer,
 		logger: logger,
-		config: config,
-	}
+		config: config.Server,
+	}, nil
 }
 
 func (s Server) Run() {

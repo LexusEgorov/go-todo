@@ -28,8 +28,10 @@ type Service struct {
 	storage TaskRepository
 }
 
-func New() *Service {
-	return &Service{}
+func New(storage TaskRepository) *Service {
+	return &Service{
+		storage: storage,
+	}
 }
 
 // Create implements task.TaskService.
