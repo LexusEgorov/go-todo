@@ -3,6 +3,7 @@ package services
 import (
 	"fmt"
 
+	"github.com/LexusEgorov/todo/internal/client"
 	"github.com/LexusEgorov/todo/internal/config"
 	"github.com/LexusEgorov/todo/internal/services/task"
 	"github.com/LexusEgorov/todo/internal/services/user"
@@ -28,6 +29,6 @@ func New(cfg config.DBConfig) (*Services, error) {
 
 	return &Services{
 		Task: *task.New(taskRepo.New(db)),
-		User: *user.New(userRepo.New(db), nil),
+		User: *user.New(userRepo.New(db), client.New()),
 	}, nil
 }

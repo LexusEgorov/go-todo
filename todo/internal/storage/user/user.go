@@ -26,8 +26,8 @@ func New(db *db.DB) *Storage {
 }
 
 // Create implements user.UserRepository.
-func (s *Storage) Create(user models.User) error {
-	_, err := s.db.DB.Exec(context.TODO(), queryCreate, user.TgID, user.Name)
+func (s *Storage) Create(ctx context.Context, user models.User) error {
+	_, err := s.db.DB.Exec(ctx, queryCreate, user.TgID, user.Name)
 	if err != nil {
 		return fmt.Errorf("%s: %w", opCreate, err)
 	}
@@ -36,8 +36,8 @@ func (s *Storage) Create(user models.User) error {
 }
 
 // Delete implements user.UserRepository.
-func (s *Storage) Delete(uId int) error {
-	_, err := s.db.DB.Exec(context.TODO(), queryDelete, uId)
+func (s *Storage) Delete(ctx context.Context, uId int) error {
+	_, err := s.db.DB.Exec(ctx, queryDelete, uId)
 	if err != nil {
 		return fmt.Errorf("%s: %w", opDelete, err)
 	}
@@ -46,9 +46,9 @@ func (s *Storage) Delete(uId int) error {
 }
 
 // Get implements user.UserRepository.
-func (s *Storage) Get(uId int) (models.User, error) {
+func (s *Storage) Get(ctx context.Context, uId int) (models.User, error) {
 	user := models.User{}
-	err := s.db.DB.QueryRow(context.TODO(), queryGet, uId).Scan(&user.ID, &user.TgID, &user.Name, &user.CreatedAt, &user.UpdatedAt)
+	err := s.db.DB.QueryRow(ctx, queryGet, uId).Scan(&user.ID, &user.TgID, &user.Name, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
 		return models.User{}, fmt.Errorf("%s: %w", opGet, err)
 	}
@@ -57,9 +57,9 @@ func (s *Storage) Get(uId int) (models.User, error) {
 }
 
 // Set implements user.UserRepository.
-func (s *Storage) Set(user models.User) error {
+func (s *Storage) Set(ctx context.Context, user models.User) error {
 	updateDate := time.Now()
-	_, err := s.db.DB.Exec(context.TODO(), querySet, user.ID, user.TgID, user.Name, updateDate)
+	_, err := s.db.DB.Exec(ctx, querySet, user.ID, user.TgID, user.Name, updateDate)
 	if err != nil {
 		return fmt.Errorf("%s: %w", opSet, err)
 	}

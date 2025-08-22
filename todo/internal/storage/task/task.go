@@ -27,9 +27,9 @@ func New(db *db.DB) *Storage {
 }
 
 // Create implements task.TaskRepository.
-func (s *Storage) Create(task models.Task) error {
+func (s *Storage) Create(ctx context.Context, task models.Task) error {
 	//TODO: get id
-	_, err := s.db.DB.Exec(context.TODO(), queryCreate, task.UID, task.Title, task.Text, dto.TaskStatusNew)
+	_, err := s.db.DB.Exec(ctx, queryCreate, task.UID, task.Title, task.Text, dto.TaskStatusNew)
 	if err != nil {
 		return fmt.Errorf("%s: %w", opCreate, err)
 	}
@@ -38,8 +38,8 @@ func (s *Storage) Create(task models.Task) error {
 }
 
 // Delete implements task.TaskRepository.
-func (s *Storage) Delete(id int) error {
-	_, err := s.db.DB.Exec(context.TODO(), queryDelete, id)
+func (s *Storage) Delete(ctx context.Context, id int) error {
+	_, err := s.db.DB.Exec(ctx, queryDelete, id)
 	if err != nil {
 		return fmt.Errorf("%s: %w", opDelete, err)
 	}
@@ -48,9 +48,9 @@ func (s *Storage) Delete(id int) error {
 }
 
 // Get implements task.TaskRepository.
-func (s *Storage) Get(id int) (models.Task, error) {
+func (s *Storage) Get(ctx context.Context, id int) (models.Task, error) {
 	task := models.Task{}
-	err := s.db.DB.QueryRow(context.TODO(), queryGet, id).Scan(&task.ID, &task.UID, &task.Title, &task.Text, &task.Deadline, &task.CreatedAt, &task.UpdatedAt)
+	err := s.db.DB.QueryRow(ctx, queryGet, id).Scan(&task.ID, &task.UID, &task.Title, &task.Text, &task.Deadline, &task.CreatedAt, &task.UpdatedAt)
 	if err != nil {
 		return models.Task{}, fmt.Errorf("%s: %w", opGet, err)
 	}
@@ -59,11 +59,11 @@ func (s *Storage) Get(id int) (models.Task, error) {
 }
 
 // GetAll implements task.TaskRepository.
-func (s *Storage) GetAll(uId int) ([]models.ShortTask, error) {
+func (s *Storage) GetAll(ctx context.Context, uId int) ([]models.ShortTask, error) {
 	tasks := make([]models.ShortTask, 0)
-	rows, err := s.db.DB.Query(context.TODO(), queryGetAll, uId)
+	rows, err := s.db.DB.Query(ctx, queryGetAll, uId)
 	if err != nil {
-		return []models.ShortTask{}, fmt.Errorf("%s: %w", opGet, err)
+		return []models.ShortTask{}, fmt.Errorf("%s: %w", opGetAll, err)
 	}
 
 	defer rows.Close()
@@ -77,8 +77,8 @@ func (s *Storage) GetAll(uId int) ([]models.ShortTask, error) {
 }
 
 // Set implements task.TaskRepository.
-func (s *Storage) Set(task models.TaskUpdate) error {
-	_, err := s.db.DB.Exec(context.TODO(), querySet, task.ID, task.Title, task.Text, task.Status, task.Deadline)
+func (s *Storage) Set(ctx context.Context, task models.TaskUpdate) error {
+	_, err := s.db.DB.Exec(ctx, querySet, task.ID, task.Title, task.Text, task.Status, task.Deadline)
 	if err != nil {
 		return fmt.Errorf("%s: %w", opSet, err)
 	}

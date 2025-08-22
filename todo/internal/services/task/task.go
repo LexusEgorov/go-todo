@@ -1,6 +1,7 @@
 package task
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/LexusEgorov/todo/internal/models"
@@ -17,11 +18,11 @@ const (
 )
 
 type TaskRepository interface {
-	Get(id int) (models.Task, error)
-	GetAll(uId int) ([]models.ShortTask, error)
-	Create(task models.Task) error
-	Set(task models.TaskUpdate) error
-	Delete(id int) error
+	Get(ctx context.Context, id int) (models.Task, error)
+	GetAll(ctx context.Context, uId int) ([]models.ShortTask, error)
+	Create(ctx context.Context, task models.Task) error
+	Set(ctx context.Context, task models.TaskUpdate) error
+	Delete(ctx context.Context, id int) error
 }
 
 type Service struct {
@@ -35,7 +36,7 @@ func New(storage TaskRepository) *Service {
 }
 
 // Create implements task.TaskService.
-func (s Service) Create(task dto.TaskUpdate, uId int) (dto.Task, error) {
+func (s Service) Create(ctx context.Context, task dto.TaskUpdate, uId int) (dto.Task, error) {
 	if task.Title == "" || task.Deadline.IsZero() {
 		return dto.Task{}, models.ErrBadBody
 	}
@@ -48,7 +49,7 @@ func (s Service) Create(task dto.TaskUpdate, uId int) (dto.Task, error) {
 		Deadline: task.Deadline,
 	}
 
-	err := s.storage.Create(coreTask)
+	err := s.storage.Create(ctx, coreTask)
 	if err != nil {
 		return dto.Task{}, fmt.Errorf("%s: %w", opCreate, err)
 	}
@@ -57,12 +58,12 @@ func (s Service) Create(task dto.TaskUpdate, uId int) (dto.Task, error) {
 }
 
 // Delete implements task.TaskService.
-func (s Service) Delete(taskID int) error {
+func (s Service) Delete(ctx context.Context, taskID int) error {
 	if taskID == 0 {
 		return models.ErrNotFound
 	}
 
-	err := s.storage.Delete(taskID)
+	err := s.storage.Delete(ctx, taskID)
 	if err != nil {
 		return fmt.Errorf("%s: %w", opDelete, err)
 	}
@@ -71,12 +72,12 @@ func (s Service) Delete(taskID int) error {
 }
 
 // Get implements task.TaskService.
-func (s Service) Get(taskID int) (dto.Task, error) {
+func (s Service) Get(ctx context.Context, taskID int) (dto.Task, error) {
 	if taskID == 0 {
 		return dto.Task{}, models.ErrNotFound
 	}
 
-	task, err := s.storage.Get(taskID)
+	task, err := s.storage.Get(ctx, taskID)
 	if err != nil {
 		return dto.Task{}, fmt.Errorf("%s: %w", opGet, err)
 	}
@@ -85,12 +86,12 @@ func (s Service) Get(taskID int) (dto.Task, error) {
 }
 
 // GetAll implements task.TaskService.
-func (s Service) GetAll(userID int) ([]dto.ShortTask, error) {
+func (s Service) GetAll(ctx context.Context, userID int) ([]dto.ShortTask, error) {
 	if userID == 0 {
 		return []dto.ShortTask{}, models.ErrNotFound
 	}
 
-	tasks, err := s.storage.GetAll(userID)
+	tasks, err := s.storage.GetAll(ctx, userID)
 	if err != nil {
 		return []dto.ShortTask{}, fmt.Errorf("%s: %w", opGetAll, err)
 	}
@@ -104,12 +105,12 @@ func (s Service) GetAll(userID int) ([]dto.ShortTask, error) {
 }
 
 // Update implements task.TaskService.
-func (s Service) Update(task dto.TaskUpdate) (dto.TaskUpdate, error) {
+func (s Service) Update(ctx context.Context, task dto.TaskUpdate) (dto.TaskUpdate, error) {
 	if task.ID == 0 {
 		return dto.TaskUpdate{}, models.ErrNotFound
 	}
 
-	if task.Deadline.IsZero() || task.Title == "" || !validStatus(task.Status) {
+	if task.Deadline.IsZero() || task.Title == "" || !validateStatus(task.Status) {
 		return dto.TaskUpdate{}, models.ErrBadBody
 	}
 
@@ -121,7 +122,7 @@ func (s Service) Update(task dto.TaskUpdate) (dto.TaskUpdate, error) {
 		Deadline: task.Deadline,
 	}
 
-	err := s.storage.Set(coreTask)
+	err := s.storage.Set(ctx, coreTask)
 	if err != nil {
 		return dto.TaskUpdate{}, fmt.Errorf("%s: %w", opUpdate, err)
 	}
@@ -129,7 +130,7 @@ func (s Service) Update(task dto.TaskUpdate) (dto.TaskUpdate, error) {
 	return coreTask.ToDTO(), nil
 }
 
-func validStatus(status dto.TaskStatus) bool {
+func validateStatus(status dto.TaskStatus) bool {
 	switch status {
 	case dto.TaskStatusCancelled:
 		fallthrough

@@ -1,6 +1,7 @@
 package task
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -24,11 +25,11 @@ const (
 )
 
 type TaskService interface {
-	Get(taskID int) (dto.Task, error)
-	GetAll(userID int) ([]dto.ShortTask, error)
-	Create(task dto.TaskUpdate, uId int) (dto.Task, error)
-	Update(task dto.TaskUpdate) (dto.TaskUpdate, error)
-	Delete(taskID int) error
+	Get(ctx context.Context, taskID int) (dto.Task, error)
+	GetAll(ctx context.Context, userID int) ([]dto.ShortTask, error)
+	Create(ctx context.Context, task dto.TaskUpdate, uId int) (dto.Task, error)
+	Update(ctx context.Context, task dto.TaskUpdate) (dto.TaskUpdate, error)
+	Delete(ctx context.Context, taskID int) error
 }
 
 type Handler struct {
@@ -50,7 +51,7 @@ func (h Handler) Get(c echo.Context) error {
 		return h.sendBadResponse(c, http.StatusNotFound, err.Error())
 	}
 
-	task, err := h.service.Get(id)
+	task, err := h.service.Get(c.Request().Context(), id)
 	if err != nil {
 		h.logger.Error(fmt.Errorf("%s: %w", opGet, err).Error())
 		return h.sendBadResponse(c, http.StatusBadRequest, err.Error())
@@ -66,7 +67,7 @@ func (h Handler) GetAll(c echo.Context) error {
 		return h.sendBadResponse(c, http.StatusNotFound, err.Error())
 	}
 
-	tasks, err := h.service.GetAll(uId)
+	tasks, err := h.service.GetAll(c.Request().Context(), uId)
 	if err != nil {
 		h.logger.Error(fmt.Errorf("%s: %w", opGetAll, err).Error())
 		return h.sendBadResponse(c, http.StatusBadRequest, err.Error())
@@ -90,7 +91,7 @@ func (h Handler) Create(c echo.Context) error {
 	}
 
 	uId := 1 //TODO: get id from JWT
-	created, err := h.service.Create(task, uId)
+	created, err := h.service.Create(c.Request().Context(), task, uId)
 	if err != nil {
 		h.logger.Error(fmt.Errorf("%s: %w", opCreate, err).Error())
 		return h.sendBadResponse(c, http.StatusBadRequest, err.Error())
@@ -113,7 +114,7 @@ func (h Handler) Update(c echo.Context) error {
 		return h.sendBadResponse(c, http.StatusBadRequest, models.ErrReadJSON)
 	}
 
-	updated, err := h.service.Update(task)
+	updated, err := h.service.Update(c.Request().Context(), task)
 	if err != nil {
 		h.logger.Error(fmt.Errorf("%s: %w", opUpdate, err).Error())
 		return h.sendBadResponse(c, http.StatusBadRequest, err.Error())
@@ -129,7 +130,7 @@ func (h Handler) Delete(c echo.Context) error {
 		return h.sendBadResponse(c, http.StatusNotFound, err.Error())
 	}
 
-	err = h.service.Delete(id)
+	err = h.service.Delete(c.Request().Context(), id)
 	if err != nil {
 		h.logger.Error(fmt.Errorf("%s: %w", opDelete, err).Error())
 		return h.sendBadResponse(c, http.StatusBadRequest, err.Error())

@@ -1,6 +1,7 @@
 package user
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -24,11 +25,11 @@ const (
 )
 
 type UserService interface {
-	Register(data dto.Register) (dto.Tokens, error)
+	Register(ctx context.Context, data dto.Register) (dto.Tokens, error)
 	Auth(data dto.Auth) (dto.Tokens, error)
-	Get(uID int) (dto.User, error)
-	Update(user dto.UserUpdate) (dto.User, error)
-	Delete(uID int) error
+	Get(ctx context.Context, uID int) (dto.User, error)
+	Update(ctx context.Context, user dto.UserUpdate) (dto.User, error)
+	Delete(ctx context.Context, uID int) error
 }
 
 type Handler struct {
@@ -57,7 +58,7 @@ func (h Handler) Register(c echo.Context) error {
 		return h.sendBadResponse(c, http.StatusBadRequest, models.ErrReadJSON)
 	}
 
-	tokens, err := h.service.Register(userData)
+	tokens, err := h.service.Register(c.Request().Context(), userData)
 	if err != nil {
 		h.logger.Error(fmt.Errorf("%s: %w", opRegister, err).Error())
 		return h.sendBadResponse(c, http.StatusBadRequest, err.Error())
@@ -103,7 +104,7 @@ func (h Handler) Update(c echo.Context) error {
 		return h.sendBadResponse(c, http.StatusBadRequest, models.ErrReadJSON)
 	}
 
-	user, err := h.service.Update(userData)
+	user, err := h.service.Update(c.Request().Context(), userData)
 	if err != nil {
 		h.logger.Error(fmt.Errorf("%s: %w", opUpdate, err).Error())
 		return h.sendBadResponse(c, http.StatusBadRequest, err.Error())
@@ -119,7 +120,7 @@ func (h Handler) Get(c echo.Context) error {
 		return h.sendBadResponse(c, http.StatusNotFound, err.Error())
 	}
 
-	user, err := h.service.Get(uId)
+	user, err := h.service.Get(c.Request().Context(), uId)
 	if err != nil {
 		h.logger.Error(fmt.Errorf("%s: %w", opGet, err).Error())
 		return h.sendBadResponse(c, http.StatusBadRequest, err.Error())
@@ -135,7 +136,7 @@ func (h Handler) Delete(c echo.Context) error {
 		return h.sendBadResponse(c, http.StatusNotFound, err.Error())
 	}
 
-	err = h.service.Delete(uId)
+	err = h.service.Delete(c.Request().Context(), uId)
 	if err != nil {
 		h.logger.Error(fmt.Errorf("%s: %w", opDelete, err).Error())
 		return h.sendBadResponse(c, http.StatusBadRequest, err.Error())

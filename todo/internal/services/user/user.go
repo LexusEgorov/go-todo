@@ -1,6 +1,7 @@
 package user
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/LexusEgorov/todo/internal/models"
@@ -17,10 +18,10 @@ const (
 )
 
 type UserRepository interface {
-	Create(user models.User) error
-	Get(uId int) (models.User, error)
-	Set(user models.User) error
-	Delete(uId int) error
+	Create(ctx context.Context, user models.User) error
+	Get(ctx context.Context, uId int) (models.User, error)
+	Set(ctx context.Context, user models.User) error
+	Delete(ctx context.Context, uId int) error
 }
 
 type AuthService interface {
@@ -42,7 +43,7 @@ func New(storage UserRepository, auth AuthService) *Service {
 }
 
 // Register implements user.UserService.
-func (s Service) Register(data dto.Register) (dto.Tokens, error) {
+func (s Service) Register(ctx context.Context, data dto.Register) (dto.Tokens, error) {
 	if data.Login == "" || data.Name == "" || data.Password == "" || data.TgID == 0 {
 		return dto.Tokens{}, models.ErrBadBody
 	}
@@ -52,7 +53,7 @@ func (s Service) Register(data dto.Register) (dto.Tokens, error) {
 		Name: data.Name,
 	}
 
-	err := s.storage.Create(user)
+	err := s.storage.Create(ctx, user)
 	if err != nil {
 		return dto.Tokens{}, fmt.Errorf("%s: %w", opRegister, err)
 	}
@@ -80,12 +81,12 @@ func (s Service) Auth(data dto.Auth) (dto.Tokens, error) {
 }
 
 // Delete implements user.UserService.
-func (s Service) Delete(uID int) error {
+func (s Service) Delete(ctx context.Context, uID int) error {
 	if uID == 0 {
 		return models.ErrNotFound
 	}
 
-	err := s.storage.Delete(uID)
+	err := s.storage.Delete(ctx, uID)
 	if err != nil {
 		return fmt.Errorf("%s: %w", opDelete, err)
 	}
@@ -94,12 +95,12 @@ func (s Service) Delete(uID int) error {
 }
 
 // Get implements user.UserService.
-func (s Service) Get(uID int) (dto.User, error) {
+func (s Service) Get(ctx context.Context, uID int) (dto.User, error) {
 	if uID == 0 {
 		return dto.User{}, models.ErrNotFound
 	}
 
-	user, err := s.storage.Get(uID)
+	user, err := s.storage.Get(ctx, uID)
 	if err != nil {
 		return dto.User{}, fmt.Errorf("%s: %w", opGet, err)
 	}
@@ -108,7 +109,7 @@ func (s Service) Get(uID int) (dto.User, error) {
 }
 
 // Update implements user.UserService.
-func (s Service) Update(user dto.UserUpdate) (dto.User, error) {
+func (s Service) Update(ctx context.Context, user dto.UserUpdate) (dto.User, error) {
 	if user.ID == 0 {
 		return dto.User{}, models.ErrNotFound
 	}
@@ -122,7 +123,7 @@ func (s Service) Update(user dto.UserUpdate) (dto.User, error) {
 		Name: user.Name,
 	}
 
-	err := s.storage.Set(update)
+	err := s.storage.Set(ctx, update)
 	if err != nil {
 		return dto.User{}, fmt.Errorf("%s: %w", opUpdate, err)
 	}
