@@ -4,9 +4,9 @@ services:
     build:
       context: ./todo
       dockerfile: Dockerfile.todo
-    # depends_on:
-    #   - migrator-todo
-    #   - db-todo
+    depends_on:
+      - migrator-todo
+      - db-todo
     ports:
       - 44044:8080
     command: ["-config=${CONFIG_PATH}"]
