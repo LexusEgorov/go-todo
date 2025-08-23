@@ -28,6 +28,7 @@ var (
 	ErrBadUserName           = errors.New("username is required")
 	ErrBadPassword           = errors.New("password is required")
 	ErrBadDBName             = errors.New("db name is required")
+	ErrBadDBHost             = errors.New("db host is required")
 )
 
 type ServerConfig struct {

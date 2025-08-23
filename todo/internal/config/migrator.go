@@ -18,12 +18,14 @@ func NewMigratorConfig() (*MigratorConfig, error) {
 		user           string
 		password       string
 		name           string
+		host           string
 	)
 
 	flag.StringVar(&migrationsPath, "m", "", "path to migrations")
 	flag.StringVar(&password, "p", "", "db password")
 	flag.StringVar(&name, "n", "", "db name")
 	flag.StringVar(&user, "u", "", "db username")
+	flag.StringVar(&host, "h", "", "db host")
 	flag.Parse()
 
 	if migrationsPath == "" {
@@ -42,12 +44,17 @@ func NewMigratorConfig() (*MigratorConfig, error) {
 		return nil, ErrBadDBName
 	}
 
+	if host == "" {
+		return nil, ErrBadDBHost
+	}
+
 	return &MigratorConfig{
 		MigrationsPath: migrationsPath,
 		DBConfig: DBConfig{
 			User:     user,
 			Password: password,
 			Name:     name,
+			Host:     host,
 		},
 	}, nil
 }

@@ -17,10 +17,10 @@ CREATE TABLE tasks (
     deadline TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-    CONSTRAINT fk_tasks_users FOREIGN KEY (uid) REFERENCES users (id) ON DELETE CASCADE
+    CONSTRAINT fk_tasks_users FOREIGN KEY (u_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_tasks_uid ON tasks (uid);
+CREATE INDEX idx_tasks_uid ON tasks (u_id);
 CREATE INDEX idx_users_tg_id ON users (tg_id);
 -- +goose StatementEnd
 

@@ -27,11 +27,8 @@ FROM alpine:latest
 #2.2 Рабочая директория внутри контейнера
 WORKDIR /app
 
-#2.3 Копируем миграции
-COPY --from=builder /app/migrations ./migrations
-
-#2.4 Копируем собранное приложение
+#2.3 Копируем собранное приложение
 COPY --from=builder /app/migrator ./
 
-#2.5 Запуск
+#2.4 Запуск
 ENTRYPOINT [ "./migrator" ]
