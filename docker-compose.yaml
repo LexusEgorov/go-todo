@@ -5,23 +5,25 @@ services:
       context: ./todo
       dockerfile: Dockerfile.todo
     depends_on:
-      - migrator-todo
-      - db-todo
+      - todo-migrator
+      - todo-db
     ports:
       - 44044:8080
     command: ["-config=${CONFIG_PATH}"]
-  migrator-todo:
+    volumes:
+      - ./configs:/configs:ro
+  todo-migrator:
     image: migrator
     build:
       context: ./todo
       dockerfile: Dockerfile.migrator
     depends_on:
-      - db-todo
+      - todo-db
     restart: "no"
     command: ["-p=${DB_PASSWORD}", "-m=${MIGRATIONS_PATH}", "-n=${DB_NAME}", "-u=${DB_USER}"]
     volumes:
      - ./migrations:/app/migrations
-  db-todo:
+  todo-db:
     image: postgres:latest
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
@@ -35,6 +37,6 @@ services:
     ports:
       - 44045:5432
     volumes:
-      - db-todo:/var/lib/postgresql/data
+      - todo-db:/var/lib/postgresql/data
 volumes:
-  db-todo:
+  todo-db:

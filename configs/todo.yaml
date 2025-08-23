@@ -1,10 +1,11 @@
 server:
   port: 8080
   address: "0.0.0.0"
-  maxResponseTime: "5s"
+  authAddress: "auth"
 db:
   user: "root"
   password: "root"
-  name: "todo-db"
+  name: "todo"
+  host: "todo-db"
 logger:
   source: true

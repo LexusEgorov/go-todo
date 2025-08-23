@@ -15,7 +15,7 @@ func main() {
 		log.Fatalf("migrator: %v", err)
 	}
 
-	connStr := config.GetConnStr(cfg.User, cfg.Password, cfg.Name)
+	connStr := config.GetConnStr(cfg.User, cfg.Password, cfg.Host, cfg.Name)
 	connConfig, err := pgx.ParseConfig(connStr)
 	if err != nil {
 		log.Fatalf("migrator: failed to parse conn config: %v", err)

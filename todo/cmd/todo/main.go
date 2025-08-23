@@ -22,7 +22,10 @@ func main() {
 		AddSource: config.Logger.AddSource, //TODO: Remove
 	}))
 
-	app := app.New(logger, config)
+	app, err := app.New(logger, config)
+	if err != nil {
+		log.Fatalf("main: %v", err)
+	}
 
 	app.Run()
 

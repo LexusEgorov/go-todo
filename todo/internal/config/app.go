@@ -40,6 +40,7 @@ type DBConfig struct {
 	User     string `yaml:"user"`
 	Name     string `yaml:"name"`
 	Password string `yaml:"password"`
+	Host     string `yaml:"host"`
 }
 
 type LoggerConfig struct {
@@ -118,7 +119,7 @@ func checkServerConfig(cfg *ServerConfig) error {
 // Читает конфиг из env
 func readEnvConfig(cfg *Config) (*Config, error) {
 	port, err := strconv.Atoi(os.Getenv("SERVER_PORT"))
-	if err != nil {
+	if err != nil && cfg.Server.Port == 0 {
 		return nil, fmt.Errorf("%s: %w", opReadEnv, err)
 	}
 
@@ -153,7 +154,7 @@ func readEnvConfig(cfg *Config) (*Config, error) {
 
 	source, err := strconv.ParseBool(os.Getenv("LOGGER_SOURCE"))
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", opReadEnv, err)
+		source = true
 	}
 
 	cfg.Logger.AddSource = source
@@ -198,6 +199,7 @@ func fetchConfigPath() (string, error) {
 	return path, nil
 }
 
-func GetConnStr(user, password, name string) string {
-	return fmt.Sprintf("postgres://%s:%s@db:5432/%s?sslmode=disable", user, password, name)
+func GetConnStr(user, password, host, name string) string {
+	connStr := fmt.Sprintf("postgres://%s:%s@%s:5432/%s?sslmode=disable", user, password, host, name)
+	return connStr
 }

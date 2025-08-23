@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/LexusEgorov/todo/internal/config"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -21,10 +22,14 @@ type DB struct {
 func NewDB(cfg config.DBConfig) (*DB, error) {
 	db := &DB{}
 
-	connStr := config.GetConnStr(cfg.User, cfg.Password, cfg.Name)
+	connStr := config.GetConnStr(cfg.User, cfg.Password, cfg.Host, cfg.Name)
 	err := db.connect(connStr)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", opNew, err)
+		time.Sleep(3 * time.Second)
+		err = db.connect(connStr)
+		if err != nil {
+			return nil, fmt.Errorf("%s: %w", opNew, err)
+		}
 	}
 
 	return db, nil
