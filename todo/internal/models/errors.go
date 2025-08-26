@@ -1,6 +1,8 @@
 package models
 
-import "fmt"
+import (
+	"errors"
+)
 
 const (
 	ErrGetBody  = "Error while reading body"
@@ -8,6 +10,6 @@ const (
 )
 
 var (
-	ErrBadBody  = fmt.Errorf("body isn't valid")
-	ErrNotFound = fmt.Errorf("not found")
+	ErrBadBody  = errors.New("body isn't valid")
+	ErrNotFound = errors.New("not found")
 )
