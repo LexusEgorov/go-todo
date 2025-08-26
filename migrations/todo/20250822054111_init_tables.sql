@@ -2,7 +2,7 @@
 -- +goose StatementBegin
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
-    tg_id BIGINT NOT NULL,
+    tg_id BIGINT NOT NULL UNIQUE,
     name TEXT,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()

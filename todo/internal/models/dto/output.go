@@ -14,6 +14,7 @@ const (
 )
 
 type Tokens struct {
+	ID      int    `json:"id,omitempty"`
 	Access  string `json:"access"`
 	Refresh string `json:"refresh"`
 }

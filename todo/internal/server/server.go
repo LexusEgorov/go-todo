@@ -42,12 +42,13 @@ func New(logger *slog.Logger, config config.Config) (*Server, error) {
 
 	userGroup := echoServer.Group("users")
 	userGroup.GET("/:id", serverHandlers.User.Get)
+	userGroup.POST("/", serverHandlers.User.Update)
 
 	//check
 	userGroup.DELETE("/:id", serverHandlers.User.Delete)
 
 	echoServer.POST("/register", serverHandlers.User.Register)
-	echoServer.POST("/auth", serverHandlers.User.Register)
+	echoServer.POST("/auth", serverHandlers.User.Auth)
 
 	return &Server{
 		server: echoServer,

@@ -18,7 +18,7 @@ const (
 )
 
 type UserRepository interface {
-	Create(ctx context.Context, user models.User) error
+	Create(ctx context.Context, user models.User) (int, error)
 	Get(ctx context.Context, uId int) (models.User, error)
 	Set(ctx context.Context, user models.User) error
 	Delete(ctx context.Context, uId int) error
@@ -53,7 +53,7 @@ func (s Service) Register(ctx context.Context, data dto.Register) (dto.Tokens, e
 		Name: data.Name,
 	}
 
-	err := s.storage.Create(ctx, user)
+	id, err := s.storage.Create(ctx, user)
 	if err != nil {
 		return dto.Tokens{}, fmt.Errorf("%s: %w", opRegister, err)
 	}
@@ -63,6 +63,7 @@ func (s Service) Register(ctx context.Context, data dto.Register) (dto.Tokens, e
 		return dto.Tokens{}, fmt.Errorf("%s: %w", opRegister, err)
 	}
 
+	tokens.ID = id
 	return tokens, nil
 }
 

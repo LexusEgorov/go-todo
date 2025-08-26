@@ -3,7 +3,6 @@ package user
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/LexusEgorov/todo/internal/models"
 	"github.com/LexusEgorov/todo/internal/storage/db"
@@ -26,13 +25,13 @@ func New(db *db.DB) *Storage {
 }
 
 // Create implements user.UserRepository.
-func (s *Storage) Create(ctx context.Context, user models.User) error {
-	_, err := s.db.DB.Exec(ctx, queryCreate, user.TgID, user.Name)
+func (s *Storage) Create(ctx context.Context, user models.User) (id int, err error) {
+	err = s.db.DB.QueryRow(ctx, queryCreate, user.TgID, user.Name).Scan(&id)
 	if err != nil {
-		return fmt.Errorf("%s: %w", opCreate, err)
+		return id, fmt.Errorf("%s: %w", opCreate, err)
 	}
 
-	return nil
+	return
 }
 
 // Delete implements user.UserRepository.
@@ -58,8 +57,7 @@ func (s *Storage) Get(ctx context.Context, uId int) (models.User, error) {
 
 // Set implements user.UserRepository.
 func (s *Storage) Set(ctx context.Context, user models.User) error {
-	updateDate := time.Now()
-	_, err := s.db.DB.Exec(ctx, querySet, user.ID, user.TgID, user.Name, updateDate)
+	_, err := s.db.DB.Exec(ctx, querySet, user.Name, user.ID)
 	if err != nil {
 		return fmt.Errorf("%s: %w", opSet, err)
 	}
