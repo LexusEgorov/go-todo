@@ -61,11 +61,7 @@ func (h Handler) Get(c echo.Context) error {
 }
 
 func (h Handler) GetAll(c echo.Context) error {
-	uId, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		h.logger.Error(fmt.Errorf("%s: %w", opGetAll, err).Error())
-		return h.sendBadResponse(c, http.StatusNotFound, err.Error())
-	}
+	uId := 1
 
 	tasks, err := h.service.GetAll(c.Request().Context(), uId)
 	if err != nil {

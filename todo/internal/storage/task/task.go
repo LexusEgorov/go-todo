@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	prefix   = "Storage.User."
+	prefix   = "Storage.Task."
 	opCreate = prefix + "Create"
 	opDelete = prefix + "Delete"
 	opGet    = prefix + "Get"
@@ -27,14 +27,13 @@ func New(db *db.DB) *Storage {
 }
 
 // Create implements task.TaskRepository.
-func (s *Storage) Create(ctx context.Context, task models.Task) error {
-	//TODO: get id
-	_, err := s.db.DB.Exec(ctx, queryCreate, task.UID, task.Title, task.Text, dto.TaskStatusNew)
+func (s *Storage) Create(ctx context.Context, task models.Task) (id int, err error) {
+	err = s.db.DB.QueryRow(ctx, queryCreate, task.UID, task.Title, task.Text, dto.TaskStatusNew, task.Deadline).Scan(&id)
 	if err != nil {
-		return fmt.Errorf("%s: %w", opCreate, err)
+		return 0, fmt.Errorf("%s: %w", opCreate, err)
 	}
 
-	return nil
+	return
 }
 
 // Delete implements task.TaskRepository.

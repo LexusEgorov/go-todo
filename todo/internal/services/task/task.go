@@ -20,7 +20,7 @@ const (
 type TaskRepository interface {
 	Get(ctx context.Context, id int) (models.Task, error)
 	GetAll(ctx context.Context, uId int) ([]models.ShortTask, error)
-	Create(ctx context.Context, task models.Task) error
+	Create(ctx context.Context, task models.Task) (int, error)
 	Set(ctx context.Context, task models.TaskUpdate) error
 	Delete(ctx context.Context, id int) error
 }
@@ -49,11 +49,12 @@ func (s Service) Create(ctx context.Context, task dto.TaskUpdate, uId int) (dto.
 		Deadline: task.Deadline,
 	}
 
-	err := s.storage.Create(ctx, coreTask)
+	id, err := s.storage.Create(ctx, coreTask)
 	if err != nil {
 		return dto.Task{}, fmt.Errorf("%s: %w", opCreate, err)
 	}
 
+	coreTask.ID = id
 	return coreTask.ToDTO(), nil
 }
 
