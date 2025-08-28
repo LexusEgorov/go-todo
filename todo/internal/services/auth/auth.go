@@ -42,3 +42,5 @@ func (c *Client) Access(access string) error {
 func (c *Client) Refresh(refresh string) (dto.Tokens, error) {
 	return c.client.RefreshRequest(refresh)
 }
+
+//TODO: add getting userData from JWT
