@@ -10,6 +10,7 @@ const (
 )
 
 var (
-	ErrBadBody  = errors.New("body isn't valid")
-	ErrNotFound = errors.New("not found")
+	ErrBadBody      = errors.New("body isn't valid")
+	ErrNotFound     = errors.New("not found")
+	ErrUnauthorized = errors.New("unauthorized")
 )

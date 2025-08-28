@@ -3,8 +3,8 @@ package services
 import (
 	"fmt"
 
-	"github.com/LexusEgorov/todo/internal/client"
 	"github.com/LexusEgorov/todo/internal/config"
+	"github.com/LexusEgorov/todo/internal/services/auth"
 	"github.com/LexusEgorov/todo/internal/services/task"
 	"github.com/LexusEgorov/todo/internal/services/user"
 	"github.com/LexusEgorov/todo/internal/storage/db"
@@ -21,14 +21,14 @@ type Services struct {
 	Task task.Service
 }
 
-func New(cfg config.DBConfig) (*Services, error) {
-	db, err := db.NewDB(cfg)
+func New(cfg config.Config) (*Services, error) {
+	db, err := db.NewDB(cfg.DB)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", opNew, err)
 	}
 
 	return &Services{
 		Task: *task.New(taskRepo.New(db)),
-		User: *user.New(userRepo.New(db), client.New()),
+		User: *user.New(userRepo.New(db), auth.New(&cfg.Auth)),
 	}, nil
 }

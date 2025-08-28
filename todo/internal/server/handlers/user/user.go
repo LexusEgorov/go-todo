@@ -26,10 +26,13 @@ const (
 
 type UserService interface {
 	Register(ctx context.Context, data dto.Register) (dto.Tokens, error)
-	Auth(data dto.Auth) (dto.Tokens, error)
 	Get(ctx context.Context, uID int) (dto.User, error)
 	Update(ctx context.Context, user dto.UserUpdate) (dto.User, error)
 	Delete(ctx context.Context, uID int) error
+
+	//TODO: maybe i need context. Think about it
+	Refresh(refresh string) (dto.Tokens, error)
+	Auth(data dto.Auth) (dto.Tokens, error)
 }
 
 type Handler struct {
@@ -82,6 +85,21 @@ func (h Handler) Auth(c echo.Context) error {
 	}
 
 	tokens, err := h.service.Auth(userData)
+	if err != nil {
+		h.logger.Error(fmt.Errorf("%s: %w", opAuth, err).Error())
+		return h.sendBadResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, tokens)
+}
+
+func (h Handler) Refresh(c echo.Context) error {
+	refresh := c.Request().Header.Get("Authorization")
+	if refresh == "" {
+		return h.sendBadResponse(c, http.StatusBadRequest, models.ErrUnauthorized.Error())
+	}
+
+	tokens, err := h.service.Refresh(refresh)
 	if err != nil {
 		h.logger.Error(fmt.Errorf("%s: %w", opAuth, err).Error())
 		return h.sendBadResponse(c, http.StatusBadRequest, err.Error())

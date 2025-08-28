@@ -22,6 +22,7 @@ type UserHandler interface {
 	Get(c echo.Context) error
 	Update(c echo.Context) error
 	Delete(c echo.Context) error
+	Refresh(c echo.Context) error
 }
 
 type TaskHandler interface {
@@ -37,7 +38,7 @@ type Handlers struct {
 	Task TaskHandler
 }
 
-func New(logger *slog.Logger, cfg config.DBConfig) (*Handlers, error) {
+func New(logger *slog.Logger, cfg config.Config) (*Handlers, error) {
 	services, err := services.New(cfg)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", opNew, err)

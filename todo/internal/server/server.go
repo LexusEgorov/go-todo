@@ -24,7 +24,7 @@ type Server struct {
 }
 
 func New(logger *slog.Logger, config config.Config) (*Server, error) {
-	serverHandlers, err := handlers.New(logger, config.DB)
+	serverHandlers, err := handlers.New(logger, config)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", opNew, err)
 	}
@@ -49,6 +49,7 @@ func New(logger *slog.Logger, config config.Config) (*Server, error) {
 
 	echoServer.POST("/register", serverHandlers.User.Register)
 	echoServer.POST("/auth", serverHandlers.User.Auth)
+	echoServer.POST("/refresh", serverHandlers.User.Refresh)
 
 	return &Server{
 		server: echoServer,

@@ -12,6 +12,7 @@ const (
 	prefix     = "Services.User."
 	opRegister = prefix + "Register"
 	opAuth     = prefix + "Auth"
+	opRefresh  = prefix + "Refresh"
 	opDelete   = prefix + "Delete"
 	opGet      = prefix + "Get"
 	opUpdate   = prefix + "Update"
@@ -26,8 +27,10 @@ type UserRepository interface {
 
 type AuthService interface {
 	Register(data dto.Register) (dto.Tokens, error)
+	Refresh(refresh string) (dto.Tokens, error)
 	Auth(data dto.Auth) (dto.Tokens, error)
 	Update(data dto.UserUpdate) error
+	Access(access string) error
 }
 
 type Service struct {
@@ -76,6 +79,20 @@ func (s Service) Auth(data dto.Auth) (dto.Tokens, error) {
 	tokens, err := s.authService.Auth(data)
 	if err != nil {
 		return dto.Tokens{}, fmt.Errorf("%s: %w", opAuth, err)
+	}
+
+	return tokens, nil
+}
+
+// Refresh implements user.UserService.
+func (s Service) Refresh(refresh string) (dto.Tokens, error) {
+	if refresh == "" {
+		return dto.Tokens{}, models.ErrBadBody
+	}
+
+	tokens, err := s.authService.Refresh(refresh)
+	if err != nil {
+		return dto.Tokens{}, fmt.Errorf("%s: %w", opRefresh, err)
 	}
 
 	return tokens, nil

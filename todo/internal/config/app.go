@@ -32,9 +32,8 @@ var (
 )
 
 type ServerConfig struct {
-	Port     int    `yaml:"port"`
-	Addr     string `yaml:"address"`
-	AuthAddr string `yaml:"authAddress"`
+	Port int    `yaml:"port"`
+	Addr string `yaml:"address"`
 }
 
 type DBConfig struct {
@@ -48,10 +47,16 @@ type LoggerConfig struct {
 	AddSource bool `yaml:"source"`
 }
 
+type AuthConfig struct {
+	Addr       string `yaml:"address"`
+	RetryCount int    `yaml:"retryCount"`
+}
+
 type Config struct {
 	Server ServerConfig `yaml:"server"`
 	DB     DBConfig     `yaml:"db"`
 	Logger LoggerConfig `yaml:"config"`
+	Auth   AuthConfig   `yaml:"auth"`
 }
 
 func New() (cfg *Config, err error) {
@@ -84,7 +89,15 @@ func checkConfig(cfg *Config) error {
 		return fmt.Errorf("%s: %w", opCheckConfig, err)
 	}
 
-	return checkDBConfig(&cfg.DB)
+	if err := checkAuthConfig(&cfg.Auth); err != nil {
+		return fmt.Errorf("%s: %w", opCheckConfig, err)
+	}
+
+	if err := checkDBConfig(&cfg.DB); err != nil {
+		return fmt.Errorf("%s: %w", opCheckConfig, err)
+	}
+
+	return nil
 }
 
 // Валидирует конфиг базы данных
@@ -110,7 +123,12 @@ func checkServerConfig(cfg *ServerConfig) error {
 		return ErrBadConfigPort
 	}
 
-	if cfg.AuthAddr == "" {
+	return nil
+}
+
+// Валидирует серверный конфиг
+func checkAuthConfig(cfg *AuthConfig) error {
+	if cfg.Addr == "" {
 		return ErrBadAuthAddr
 	}
 
@@ -135,7 +153,7 @@ func readEnvConfig(cfg *Config) (*Config, error) {
 
 	authAddress := os.Getenv("AUTH_ADDRESS")
 	if authAddress != "" {
-		cfg.Server.AuthAddr = authAddress
+		cfg.Auth.Addr = authAddress
 	}
 
 	dbPassword := os.Getenv("DB_PASSWORD")
