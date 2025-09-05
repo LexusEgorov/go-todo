@@ -11,6 +11,7 @@ import (
 
 	"github.com/LexusEgorov/todo/internal/config"
 	"github.com/LexusEgorov/todo/internal/server/handlers"
+	"github.com/LexusEgorov/todo/internal/server/middleware"
 )
 
 const (
@@ -29,7 +30,9 @@ func New(logger *slog.Logger, config config.Config) (*Server, error) {
 		return nil, fmt.Errorf("%s: %w", opNew, err)
 	}
 
+	middleware := middleware.New(logger)
 	echoServer := echo.New()
+	echoServer.Use(middleware.WithRecover, middleware.WithLogging)
 
 	taskGroup := echoServer.Group("tasks")
 

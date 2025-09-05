@@ -24,6 +24,7 @@ var (
 	ErrConfigPathNotProvided = errors.New("config path didn't provide")
 	ErrBadConfigPort         = errors.New("port must be upper than 0")
 	ErrBadAuthAddr           = errors.New("auth service's address is required")
+	ErrBadSecret             = errors.New("secret is required")
 	ErrBadResponseTime       = errors.New("response time must be upper than 0ms")
 	ErrBadUserName           = errors.New("username is required")
 	ErrBadPassword           = errors.New("password is required")
@@ -49,6 +50,7 @@ type LoggerConfig struct {
 
 type AuthConfig struct {
 	Addr       string `yaml:"address"`
+	Secret     string `yaml:"secret	"`
 	RetryCount int    `yaml:"retryCount"`
 }
 
@@ -130,6 +132,10 @@ func checkServerConfig(cfg *ServerConfig) error {
 func checkAuthConfig(cfg *AuthConfig) error {
 	if cfg.Addr == "" {
 		return ErrBadAuthAddr
+	}
+
+	if cfg.Secret == "" {
+		return ErrBadSecret
 	}
 
 	return nil

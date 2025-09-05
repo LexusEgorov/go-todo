@@ -13,4 +13,7 @@ var (
 	ErrBadBody      = errors.New("body isn't valid")
 	ErrNotFound     = errors.New("not found")
 	ErrUnauthorized = errors.New("unauthorized")
+
+	ErrEmptyToken   = errors.New("empty jwt")
+	ErrInvalidToken = errors.New("bad token")
 )
