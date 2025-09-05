@@ -12,6 +12,7 @@ import (
 	"github.com/LexusEgorov/todo/internal/config"
 	"github.com/LexusEgorov/todo/internal/server/handlers"
 	"github.com/LexusEgorov/todo/internal/server/middleware"
+	"github.com/LexusEgorov/todo/internal/services/auth"
 )
 
 const (
@@ -30,25 +31,26 @@ func New(logger *slog.Logger, config config.Config) (*Server, error) {
 		return nil, fmt.Errorf("%s: %w", opNew, err)
 	}
 
-	middleware := middleware.New(logger)
+	middleware := middleware.New(logger, auth.New(&config.Auth))
 	echoServer := echo.New()
 	echoServer.Use(middleware.WithRecover, middleware.WithLogging)
 
 	taskGroup := echoServer.Group("tasks")
 
-	taskGroup.GET("/", serverHandlers.Task.GetAll)
-	taskGroup.POST("/", serverHandlers.Task.Create)
-	//check
-	taskGroup.DELETE("/:id", serverHandlers.Task.Delete)
-	taskGroup.GET("/:id", serverHandlers.Task.Get)
-	taskGroup.POST("/update", serverHandlers.Task.Update)
+	taskGroup.GET("/", serverHandlers.Task.GetAll, middleware.WithAuth)
+	taskGroup.POST("/", serverHandlers.Task.Create, middleware.WithAuth)
+	taskGroup.POST("/update", serverHandlers.Task.Update, middleware.WithAuth)
+
+	protectedTaskGroup := taskGroup.Group("", middleware.WithAuth, middleware.WithCheck)
+	protectedTaskGroup.DELETE("/:id", serverHandlers.Task.Delete)
+	protectedTaskGroup.GET("/:id", serverHandlers.Task.Get)
 
 	userGroup := echoServer.Group("users")
-	userGroup.GET("/:id", serverHandlers.User.Get)
-	userGroup.POST("/", serverHandlers.User.Update)
+	userGroup.GET("/:id", serverHandlers.User.Get, middleware.WithAuth)
+	userGroup.POST("/", serverHandlers.User.Update, middleware.WithAuth)
 
-	//check
-	userGroup.DELETE("/:id", serverHandlers.User.Delete)
+	protectedUserGroup := userGroup.Group("", middleware.WithAuth, middleware.WithCheck)
+	protectedUserGroup.DELETE("/:id", serverHandlers.User.Delete)
 
 	echoServer.POST("/register", serverHandlers.User.Register)
 	echoServer.POST("/auth", serverHandlers.User.Auth)

@@ -19,10 +19,10 @@ type Middleware struct {
 	auth   AuthService
 }
 
-func New(logger *slog.Logger /*, authService *AuthService*/) *Middleware {
+func New(logger *slog.Logger, authService AuthService) *Middleware {
 	return &Middleware{
 		logger: logger,
-		// auth:   authService,
+		auth:   authService,
 	}
 }
 
