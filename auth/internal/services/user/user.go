@@ -25,6 +25,7 @@ func New(storage UserRepository, config *config.AuthConfig) *Service {
 
 func (s Service) Auth(data models.AuthDTO) (models.TokensDTO, error) {
 	//TODO: get uid from storage; create Refresh+Access
+	//TODO: crypt password
 	token.CreateJWT(1, s.config.AccessLifetime)  //access
 	token.CreateJWT(1, s.config.RefreshLifetime) //refresh
 	return models.TokensDTO{}, nil
@@ -32,6 +33,7 @@ func (s Service) Auth(data models.AuthDTO) (models.TokensDTO, error) {
 
 func (s Service) Register(data models.RegisterDTO) (models.TokensDTO, error) {
 	//TODO: validate data, save user to storage, create tokens
+	//TODO: crypt password
 	token.CreateJWT(1, s.config.AccessLifetime)  //access
 	token.CreateJWT(1, s.config.RefreshLifetime) //refresh
 	return models.TokensDTO{}, nil

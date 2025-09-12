@@ -3,7 +3,6 @@
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     tg_id BIGINT UNIQUE NOT NULL,
-    name VARCHAR(255),
     login VARCHAR(255),
     password VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
