@@ -11,3 +11,4 @@ logger:
 auth:
   authAddress: "auth"
   retryCount: 3
+  secret: "123"

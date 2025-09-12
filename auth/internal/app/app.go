@@ -2,10 +2,15 @@ package app
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 
 	"github.com/LexusEgorov/auth/internal/config"
 	"github.com/LexusEgorov/auth/internal/server"
+)
+
+const (
+	opNew = "App.New"
 )
 
 type App struct {
@@ -13,11 +18,16 @@ type App struct {
 	logger *slog.Logger
 }
 
-func New(logger *slog.Logger, config *config.Config) *App {
-	//TODO: init server
-	return &App{
-		logger: logger,
+func New(logger *slog.Logger, config *config.Config) (*App, error) {
+	server, err := server.New(logger, config)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", opNew, err)
 	}
+
+	return &App{
+		server: server,
+		logger: logger,
+	}, nil
 }
 
 func (a App) Run() {

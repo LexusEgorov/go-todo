@@ -1,0 +1,15 @@
+server:
+  port: 8080
+  address: "localhost"
+db:
+  user: "root"
+  password: "root"
+  name: "auth"
+  host: "auth-db"
+logger:
+  source: true
+auth:
+  secret: "123"
+client:
+  address: "bot"
+  retryCount: 3

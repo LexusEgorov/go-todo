@@ -7,30 +7,38 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/labstack/echo/v4"
-
 	"github.com/LexusEgorov/auth/internal/config"
+	"github.com/LexusEgorov/auth/internal/server/handlers"
+	"github.com/labstack/echo/v4"
+)
+
+const (
+	opNew = "Server.New"
 )
 
 type Server struct {
 	server *echo.Echo
 	logger *slog.Logger
-	config config.ServerConfig
+	config *config.ServerConfig
 }
 
-func New(logger *slog.Logger, config config.ServerConfig) *Server {
-	server := echo.New()
+func New(logger *slog.Logger, config *config.Config) (*Server, error) {
+	handlers, err := handlers.New(logger, *config)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", opNew, err)
+	}
+	echoServer := echo.New()
 
-	/*Auth*/
-	//Регистрация
-	//Авторизация
-	//Проверка токена
+	echoServer.POST("", handlers.User.Auth)
+	echoServer.POST("", handlers.User.Auth)
+	echoServer.POST("", handlers.User.Auth)
+	echoServer.POST("", handlers.User.Auth)
+	echoServer.POST("", handlers.User.Auth)
 
 	return &Server{
-		server: server,
 		logger: logger,
-		config: config,
-	}
+		config: &config.Server,
+	}, nil
 }
 
 func (s Server) Run() {
@@ -47,7 +55,7 @@ func (s Server) Stop(ctx context.Context) error {
 	s.logger.Info("stopping server...")
 	err := s.server.Shutdown(ctx)
 	if err != nil {
-		return fmt.Errorf("Server.Stop: %v", err)
+		return fmt.Errorf("Server.Stop: %w", err)
 	}
 
 	return nil

@@ -19,10 +19,13 @@ func main() {
 	}
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
-		AddSource: config.Logger.AddSource, //TODO: Remove
+		AddSource: config.Logger.AddSource,
 	}))
 
-	app := app.New(logger, config)
+	app, err := app.New(logger, config)
+	if err != nil {
+		log.Fatalf("main: %v", err)
+	}
 
 	app.Run()
 
