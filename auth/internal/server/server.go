@@ -29,11 +29,11 @@ func New(logger *slog.Logger, config *config.Config) (*Server, error) {
 	}
 	echoServer := echo.New()
 
-	echoServer.POST("", handlers.User.Auth)
-	echoServer.POST("", handlers.User.Auth)
-	echoServer.POST("", handlers.User.Auth)
-	echoServer.POST("", handlers.User.Auth)
-	echoServer.POST("", handlers.User.Auth)
+	echoServer.POST("/auth", handlers.User.Auth)
+	echoServer.POST("/register", handlers.User.Register)
+	echoServer.GET("/access", handlers.Token.Access)
+	echoServer.GET("/refresh", handlers.Token.Refresh)
+	echoServer.POST("/block", handlers.Token.Block)
 
 	return &Server{
 		logger: logger,

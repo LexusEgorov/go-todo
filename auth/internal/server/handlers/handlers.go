@@ -18,12 +18,12 @@ const (
 type UserHandler interface {
 	Register(c echo.Context) error
 	Auth(c echo.Context) error
-	Access(c echo.Context) error
-	Refresh(c echo.Context) error
 }
 
 type TokenHandler interface {
+	Access(c echo.Context) error
 	Block(c echo.Context) error
+	Refresh(c echo.Context) error
 }
 
 type Handlers struct {

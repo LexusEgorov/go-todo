@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/joho/godotenv"
@@ -18,6 +19,8 @@ const (
 	opReadEnv         = prefix + "ReadEnv"
 	opReadFile        = prefix + "ReadFile"
 	opFetchConfigPath = prefix + "FetchConfigPath"
+
+	zeroLifetime = "0s"
 )
 
 var (
@@ -30,6 +33,7 @@ var (
 	ErrBadPassword           = errors.New("password is required")
 	ErrBadDBName             = errors.New("db name is required")
 	ErrBadDBHost             = errors.New("db host is required")
+	ErrBadLifetime           = errors.New("token lifetime is required")
 )
 
 type ServerConfig struct {
@@ -49,7 +53,9 @@ type LoggerConfig struct {
 }
 
 type AuthConfig struct {
-	Secret string `yaml:"secret	"`
+	Secret          string        `yaml:"secret"`
+	AccessLifetime  time.Duration `yaml:"accessLifetime"`
+	RefreshLifetime time.Duration `yaml:"refreshLifetime"`
 }
 
 type ClientConfig struct {
@@ -137,6 +143,14 @@ func checkServerConfig(cfg *ServerConfig) error {
 func checkAuthConfig(cfg *AuthConfig) error {
 	if cfg.Secret == "" {
 		return ErrBadSecret
+	}
+
+	if cfg.AccessLifetime.String() == zeroLifetime {
+		return ErrBadLifetime
+	}
+
+	if cfg.RefreshLifetime.String() == zeroLifetime {
+		return ErrBadLifetime
 	}
 
 	return nil
