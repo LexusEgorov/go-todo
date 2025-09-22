@@ -21,7 +21,7 @@ func New(storage TokenRepository) *Service {
 	}
 }
 
-func (s Service) Block(userId int, token string) error {
+func (s Service) Block(blockData models.BlockDTO) error {
 	//TODO: validate uid, token
 	return nil
 }
