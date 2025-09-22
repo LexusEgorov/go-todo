@@ -32,7 +32,7 @@ func New(logger *slog.Logger, service TokenService) *Handler {
 }
 
 func (h Handler) Block(c echo.Context) error {
-	op := prefix + "Block"
+	const op = prefix + "Block"
 	body, err := h.getBody(c)
 	if err != nil {
 		h.logger.Error(fmt.Errorf("%s: %w", op, err).Error())
@@ -56,7 +56,7 @@ func (h Handler) Block(c echo.Context) error {
 }
 
 func (h Handler) Access(c echo.Context) error {
-	op := prefix + "Access"
+	const op = prefix + "Access"
 	access := c.Request().Header.Get(echo.HeaderAuthorization)
 	if access == "" {
 		return c.JSON(echo.ErrUnauthorized.Code, nil)
@@ -72,7 +72,7 @@ func (h Handler) Access(c echo.Context) error {
 }
 
 func (h Handler) Refresh(c echo.Context) error {
-	op := prefix + "Refresh"
+	const op = prefix + "Refresh"
 	refresh := c.Request().Header.Get(echo.HeaderAuthorization)
 	if refresh == "" {
 		return c.JSON(echo.ErrUnauthorized.Code, nil)
@@ -88,7 +88,7 @@ func (h Handler) Refresh(c echo.Context) error {
 }
 
 func (h Handler) getBody(c echo.Context) ([]byte, error) {
-	op := prefix + "getBody"
+	const op = prefix + "getBody"
 	bodyReader := c.Request().Body
 	defer bodyReader.Close()
 

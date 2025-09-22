@@ -18,7 +18,7 @@ func (s *Storage) Add(data models.Register) (int, error) {
 	return 0, nil
 }
 
-func (s *Storage) Get(data models.Auth) (int, error) {
-	//TODO: just add to db
-	return 0, nil
+func (s *Storage) Get(data models.Auth) (models.UserPassword, error) {
+	//TODO: just get from db
+	return models.UserPassword{}, nil
 }

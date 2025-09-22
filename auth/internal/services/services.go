@@ -27,7 +27,7 @@ func New(cfg config.Config) (*Services, error) {
 	}
 
 	return &Services{
-		Token: *token.New(tokenRepo.New(db)),
+		Token: *token.New(tokenRepo.New(db), &cfg.Auth),
 		User:  *user.New(userRepo.New(db), &cfg.Auth),
 	}, nil
 }

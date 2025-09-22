@@ -31,7 +31,7 @@ func New(logger *slog.Logger, service UserService) *Handler {
 }
 
 func (h Handler) Auth(c echo.Context) error {
-	op := prefix + "Auth"
+	const op = prefix + "Auth"
 	body, err := h.getBody(c)
 	if err != nil {
 		h.logger.Error(fmt.Errorf("%s: %w", op, err).Error())
@@ -55,7 +55,7 @@ func (h Handler) Auth(c echo.Context) error {
 }
 
 func (h Handler) Register(c echo.Context) error {
-	op := prefix + "Register"
+	const op = prefix + "Register"
 	body, err := h.getBody(c)
 	if err != nil {
 		h.logger.Error(fmt.Errorf("%s: %w", op, err).Error())
@@ -79,7 +79,7 @@ func (h Handler) Register(c echo.Context) error {
 }
 
 func (h Handler) getBody(c echo.Context) ([]byte, error) {
-	op := prefix + "getBody"
+	const op = prefix + "getBody"
 	bodyReader := c.Request().Body
 	defer bodyReader.Close()
 
