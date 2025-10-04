@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/LexusEgorov/todo/internal/config"
-	"github.com/LexusEgorov/todo/internal/server"
+	"github.com/LexusEgorov/auth/internal/config"
+	"github.com/LexusEgorov/auth/internal/server"
 )
 
 const (
@@ -19,7 +19,7 @@ type App struct {
 }
 
 func New(logger *slog.Logger, config *config.Config) (*App, error) {
-	server, err := server.New(logger, *config)
+	server, err := server.New(logger, config)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", opNew, err)
 	}

@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/LexusEgorov/todo/internal/config"
+	"github.com/LexusEgorov/auth/internal/config"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/pressly/goose/v3"

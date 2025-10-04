@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/joho/godotenv"
@@ -18,18 +19,21 @@ const (
 	opReadEnv         = prefix + "ReadEnv"
 	opReadFile        = prefix + "ReadFile"
 	opFetchConfigPath = prefix + "FetchConfigPath"
+
+	zeroLifetime = "0s"
 )
 
 var (
 	ErrConfigPathNotProvided = errors.New("config path didn't provide")
 	ErrBadConfigPort         = errors.New("port must be upper than 0")
-	ErrBadAuthAddr           = errors.New("auth service's address is required")
+	ErrBadAddr               = errors.New("bot service's address is required")
 	ErrBadSecret             = errors.New("secret is required")
 	ErrBadResponseTime       = errors.New("response time must be upper than 0ms")
 	ErrBadUserName           = errors.New("username is required")
 	ErrBadPassword           = errors.New("password is required")
 	ErrBadDBName             = errors.New("db name is required")
 	ErrBadDBHost             = errors.New("db host is required")
+	ErrBadLifetime           = errors.New("token lifetime is required")
 )
 
 type ServerConfig struct {
@@ -49,8 +53,13 @@ type LoggerConfig struct {
 }
 
 type AuthConfig struct {
-	Addr       string `yaml:"address"`
-	Secret     string `yaml:"secret	"`
+	Secret          string        `yaml:"secret"`
+	AccessLifetime  time.Duration `yaml:"accessLifetime"`
+	RefreshLifetime time.Duration `yaml:"refreshLifetime"`
+}
+
+type ClientConfig struct {
+	Address    string `yaml:"address"`
 	RetryCount int    `yaml:"retryCount"`
 }
 
@@ -59,6 +68,7 @@ type Config struct {
 	DB     DBConfig     `yaml:"db"`
 	Logger LoggerConfig `yaml:"config"`
 	Auth   AuthConfig   `yaml:"auth"`
+	Client ClientConfig `yaml:"client"`
 }
 
 func New() (cfg *Config, err error) {
@@ -99,10 +109,13 @@ func checkConfig(cfg *Config) error {
 		return fmt.Errorf("%s: %w", opCheckConfig, err)
 	}
 
+	if err := checkClientConfig(&cfg.Client); err != nil {
+		return fmt.Errorf("%s: %w", opCheckConfig, err)
+	}
+
 	return nil
 }
 
-// Валидирует конфиг базы данных
 func checkDBConfig(cfg *DBConfig) error {
 	if cfg.Name == "" {
 		return ErrBadDBName
@@ -119,7 +132,6 @@ func checkDBConfig(cfg *DBConfig) error {
 	return nil
 }
 
-// Валидирует серверный конфиг
 func checkServerConfig(cfg *ServerConfig) error {
 	if cfg.Port <= 0 {
 		return ErrBadConfigPort
@@ -128,20 +140,30 @@ func checkServerConfig(cfg *ServerConfig) error {
 	return nil
 }
 
-// Валидирует серверный конфиг
 func checkAuthConfig(cfg *AuthConfig) error {
-	if cfg.Addr == "" {
-		return ErrBadAuthAddr
-	}
-
 	if cfg.Secret == "" {
 		return ErrBadSecret
+	}
+
+	if cfg.AccessLifetime.String() == zeroLifetime {
+		return ErrBadLifetime
+	}
+
+	if cfg.RefreshLifetime.String() == zeroLifetime {
+		return ErrBadLifetime
 	}
 
 	return nil
 }
 
-// Читает конфиг из env
+func checkClientConfig(cfg *ClientConfig) error {
+	if cfg.Address == "" {
+		return ErrBadAddr
+	}
+
+	return nil
+}
+
 func readEnvConfig(cfg *Config) (*Config, error) {
 	port, err := strconv.Atoi(os.Getenv("SERVER_PORT"))
 	if err != nil && cfg.Server.Port == 0 {
@@ -157,9 +179,9 @@ func readEnvConfig(cfg *Config) (*Config, error) {
 		cfg.Server.Addr = address
 	}
 
-	authAddress := os.Getenv("AUTH_ADDRESS")
-	if authAddress != "" {
-		cfg.Auth.Addr = authAddress
+	botAddress := os.Getenv("BOT_ADDRESS")
+	if botAddress != "" {
+		cfg.Client.Address = botAddress
 	}
 
 	dbPassword := os.Getenv("DB_PASSWORD")
@@ -187,7 +209,6 @@ func readEnvConfig(cfg *Config) (*Config, error) {
 	return cfg, nil
 }
 
-// Читает конфиг из файла
 func readFileConfig(configPath string) (*Config, error) {
 	var cfg Config
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
@@ -201,7 +222,6 @@ func readFileConfig(configPath string) (*Config, error) {
 	return &cfg, nil
 }
 
-// Получает путь до конфигурационного файла через флаг или env
 func fetchConfigPath() (string, error) {
 	var path string
 
